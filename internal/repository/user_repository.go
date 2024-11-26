@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/surajNirala/job_portal_api/internal/models"
 )
@@ -90,4 +91,33 @@ func UpdateUserPasswordRepository(db *sql.DB, user *models.User) error {
 		return err
 	}
 	return nil
+}
+
+func DeleteUserByIdRepository(tx *sql.Tx, userID int) (string, error) {
+	_, err := tx.Exec(`Delete from jobs where user_id = ?`, userID)
+	if err != nil {
+		return "", fmt.Errorf("error deleting user's jobs: %v", err)
+	}
+
+	// Get user's profile picture before deleting user
+	var profilePicture sql.NullString // Use sql.Nullstring to handle NULL Values
+	err = tx.QueryRow("Select profile_picture from users where id = ?", userID).Scan(&profilePicture)
+	if err != nil {
+		return "", fmt.Errorf("error fetching user's profile picture: %v", err)
+	}
+
+	//Delete the user
+	result, err := tx.Exec(`Delete from users where id = ?`, userID)
+	if err != nil {
+		return "", fmt.Errorf("error deleting user: %v", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return "", fmt.Errorf("error getting rows affected: %v", err)
+	}
+	if rowsAffected == 0 {
+		return "", sql.ErrNoRows
+	}
+	return profilePicture.String, nil
+
 }

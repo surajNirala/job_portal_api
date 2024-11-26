@@ -32,6 +32,7 @@ func LoginHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
+		//Given Output in JSON Format
 		response := gin.H{
 			"code":    http.StatusOK,
 			"message": "Login Successfully.",

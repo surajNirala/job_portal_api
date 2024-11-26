@@ -9,6 +9,7 @@ import (
 )
 
 func InitRoutes(r *gin.Engine, db *sql.DB) {
+
 	// AUTH ROUTES
 	r.POST("/login", handler.LoginHandler(db))
 	r.POST("/register", handler.RegisterHandler(db))
@@ -21,6 +22,7 @@ func InitRoutes(r *gin.Engine, db *sql.DB) {
 	authenticated.GET("/users", handler.GetUserListHandler(db))
 	authenticated.GET("/users/:id", handler.GetUserByIdHandler(db))
 	authenticated.PUT("/users/:id", handler.UpdateUserProfileHandler(db))
+	authenticated.DELETE("/users/:id", handler.DeleteUserByIdHandler(db))
 	authenticated.POST("/users/:id/profile-picture", handler.UpdateUserProfilePictureHandler(db))
 
 	//Job Routes

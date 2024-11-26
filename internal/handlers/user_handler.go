@@ -206,3 +206,60 @@ func UpdateUserProfilePictureHandler(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, response)
 	}
 }
+
+func DeleteUserByIdHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		isAdmin := c.GetBool("isAdmin")
+		if !isAdmin {
+			response := gin.H{
+				"code":  http.StatusUnauthorized,
+				"error": "Unautorized access.",
+			}
+			c.JSON(http.StatusUnauthorized, response)
+			return
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			response := gin.H{
+				"code":  http.StatusBadRequest,
+				"error": "Invalid User ID",
+			}
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		currentUserID := c.GetInt("userID")
+		if currentUserID == id {
+			response := gin.H{
+				"code":  http.StatusBadRequest,
+				"error": "You cannot delete yourself.",
+			}
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		err = services.DeleteUserByIdService(c, db, id)
+		if err != nil {
+			if err.Error() == "User not found." {
+				response := gin.H{
+					"code":  http.StatusInternalServerError,
+					"error": "User not found.",
+				}
+				c.JSON(http.StatusInternalServerError, response)
+				return
+			}
+			response := gin.H{
+				"code":  http.StatusInternalServerError,
+				"error": fmt.Sprintf("Error deleting user: %v", err),
+				"issue": err.Error(),
+			}
+			c.JSON(http.StatusInternalServerError, response)
+			return
+		}
+
+		response := gin.H{
+			"code":    http.StatusOK,
+			"message": "User and associated data deleted successfully.",
+		}
+		c.JSON(http.StatusOK, response)
+	}
+}
