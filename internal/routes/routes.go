@@ -6,11 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/surajNirala/job_portal_api/internal/auth"
 	handler "github.com/surajNirala/job_portal_api/internal/handlers"
+	"github.com/surajNirala/job_portal_api/internal/middleware"
 )
 
 func InitRoutes(r *gin.Engine, db *sql.DB) {
 
 	// AUTH ROUTES
+	r.GET("/", handler.GetJobListHandler(db))
 	r.POST("/login", handler.LoginHandler(db))
 	r.POST("/register", handler.RegisterHandler(db))
 	r.GET("/all-jobs", handler.GetJobListHandler(db))
@@ -24,6 +26,7 @@ func InitRoutes(r *gin.Engine, db *sql.DB) {
 	authenticated.PUT("/users/:id", handler.UpdateUserProfileHandler(db))
 	authenticated.DELETE("/users/:id", handler.DeleteUserByIdHandler(db))
 	authenticated.POST("/users/:id/profile-picture", handler.UpdateUserProfilePictureHandler(db))
+	authenticated.PUT("/users/:id/change-password", middleware.PasswordValidationMiddleware(), handler.ChangePasswordHandler(db))
 
 	//Job Routes
 	authenticated.GET("/jobs-by-user", handler.GetAllJobByUserHandler(db))

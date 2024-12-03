@@ -121,3 +121,12 @@ func DeleteUserByIdRepository(tx *sql.Tx, userID int) (string, error) {
 	return profilePicture.String, nil
 
 }
+
+// func ChangePasswordRepository(db *sql.DB, userID int, OldPassword string, NewPassword string) (string, error) {
+// 	user, err := GetUserByIdRepository(db, userID)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	user.Password = NewPassword
+// 	UpdateUserPasswordRepository(db, user)
+// }

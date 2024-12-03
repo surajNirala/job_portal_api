@@ -100,3 +100,33 @@ func ForgotPasswordHandler(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, response)
 	}
 }
+
+func ChangePasswordHandler(db *sql.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req models.ChangePassword
+		if err := c.ShouldBindJSON(&req); err != nil {
+			response := gin.H{
+				"code":     http.StatusBadRequest,
+				"error":    "Something went wrong...",
+				"issuesss": err.Error(),
+			}
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		userID := c.GetInt("userID")
+		result, err := services.ChangePasswordService(db, userID, req.OldPassword, req.NewPassword)
+		if err != nil {
+			response := gin.H{
+				"code":  http.StatusInternalServerError,
+				"error": err.Error(),
+			}
+			c.JSON(http.StatusInternalServerError, response)
+			return
+		}
+		response := gin.H{
+			"code":    http.StatusOK,
+			"message": result,
+		}
+		c.JSON(http.StatusOK, response)
+	}
+}

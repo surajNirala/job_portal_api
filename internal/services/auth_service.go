@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/surajNirala/job_portal_api/internal/models"
 	"github.com/surajNirala/job_portal_api/internal/repository"
@@ -48,4 +49,29 @@ func ForgotPasswordService(db *sql.DB, username string) (string, error) {
 	}
 	return randomPassword, nil
 
+}
+
+func ChangePasswordService(db *sql.DB, userID int, OldPassword string, NewPassword string) (string, error) {
+	user, err := repository.GetUserByIdRepository(db, userID)
+	if err != nil {
+		return "", fmt.Errorf("user not found.")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(OldPassword)); err != nil {
+		return "", fmt.Errorf("Old Password is not correct.")
+	}
+	hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	user.Password = string(hashNewPassword)
+	err = repository.UpdateUserPasswordRepository(db, user)
+	if err != nil {
+		return "", err
+	}
+	return "Password updated successfully.", nil
+	// response, err := repository.ChangePasswordRepository(db, userID, OldPassword, hashNewPassword)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// return response, nil
 }
