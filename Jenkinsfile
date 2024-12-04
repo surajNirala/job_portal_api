@@ -12,6 +12,7 @@ pipeline {
         JENKINS_SERVER = '35.200.176.111'
         GOLANG_SERVER = '34.131.166.50'
         ENV_FINAL_LIVE = '/home/srj/env/.env:/app/.env'
+        DATABASE_SQLITE = '/home/srj/db:/home/srj/db/'
     }
 
     parameters {
@@ -123,7 +124,7 @@ pipeline {
 
                                 echo "Running the Docker container"
 
-                                docker run -d --init -p ${HOST_PORT}:${CONTAINER_PORT} -v ${ENV_FINAL_LIVE} --name ${CONTAINER_NAME}-${HOST_PORT} ${DOCKER_IMAGE_TAG}
+                                docker run -d --init -p ${HOST_PORT}:${CONTAINER_PORT} -v ${ENV_FINAL_LIVE} -v ${DATABASE_SQLITE} --name ${CONTAINER_NAME}-${HOST_PORT} ${DOCKER_IMAGE_TAG}
                                 
                                 echo "Docker image ${DOCKER_IMAGE_TAG} run successfully."
                                 exit
