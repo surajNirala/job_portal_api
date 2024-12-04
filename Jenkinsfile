@@ -6,11 +6,12 @@ pipeline {
         DOCKER_IMAGE_TAG = "${DOCKER_HUB_REPO}:${env.BUILD_NUMBER}"
         CONTAINER_NAME = 'job_portal_api' // Name for your Docker container
         CONTAINER_PORT = '8080' // Port inside the Docker container
-        ENV_JOB_PORTAL_API = credentials('ENV_JOB_PORTAL_API') // For secret file
+        // ENV_JOB_PORTAL_API = credentials('ENV_JOB_PORTAL_API') // For secret file
         CREDENTIAL_SNIRALA_DOCKERHUB = 'credentials-snirala-dockerhub'
         CREDENTIALS_GOLANG_SERVER = 'credentials-golang-server'
         JENKINS_SERVER = '35.200.176.111'
         GOLANG_SERVER = '34.131.166.50'
+        ENV_FINAL_LIVE = '/home/srj/env/.env:/app/.env'
     }
 
     parameters {
@@ -63,14 +64,14 @@ pipeline {
             }
         }
 
-        stage('Prepare .env File') {
-            steps {
-                echo "Removing the existing .env file if it exists"
-                sh 'rm -f .env'
-                echo "Copying the new .env file"
-                sh "cp ${ENV_JOB_PORTAL_API} .env"
-            }
-        }
+        // stage('Prepare .env File') {
+        //     steps {
+        //         echo "Removing the existing .env file if it exists"
+        //         sh 'rm -f .env'
+        //         echo "Copying the new .env file"
+        //         sh "cp ${ENV_JOB_PORTAL_API} .env"
+        //     }
+        // }
 
         stage('Build Docker Image') {
             steps {
@@ -122,7 +123,7 @@ pipeline {
 
                                 echo "Running the Docker container"
 
-                                docker run -d --init -p ${HOST_PORT}:${CONTAINER_PORT} --name ${CONTAINER_NAME}-${HOST_PORT} ${DOCKER_IMAGE_TAG}
+                                docker run -d --init -p ${HOST_PORT}:${CONTAINER_PORT} -v ${ENV_FINAL_LIVE} --name ${CONTAINER_NAME}-${HOST_PORT} ${DOCKER_IMAGE_TAG}
                                 
                                 echo "Docker image ${DOCKER_IMAGE_TAG} run successfully."
                                 exit
